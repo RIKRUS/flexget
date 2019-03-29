@@ -1,0 +1,10 @@
+series:
+  720p:
+    - 'Doctor Who':
+        alternate_name: 'Доктор Кто'
+    - 'Salvation':
+        alternate_name: 'Спасение'
+    - 'Corporate':
+        alternate_name: 'Монстры корпорации'
+    - 'Black Mirror':
+        alternate_name: 'Чёрное зеркало'

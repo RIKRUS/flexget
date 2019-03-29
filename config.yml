@@ -1,0 +1,156 @@
+variables: variables.yml
+schedules:
+  - tasks: Lostfilm
+    interval:
+      minutes: 10
+  - tasks: Baibako
+    interval:
+      minutes: 10
+  - tasks: download-films
+    interval:
+      minutes: 10
+
+templates:
+  global:
+    pathscrub: windows
+    deluge:
+      host: 172.17.0.1
+      username: server
+      password: '2638'
+
+  tvshows:
+    metainfo_series: yes
+    trakt_lookup: yes
+    quality: 720p
+    deluge:
+      path: /mnt/sdb1/plex/TV Shows/{{series_name}}/Season {{series_season|pad(2)}}
+    exec:
+     allow_background: yes
+     auto_escape: yes
+     on_exit:
+       for_accepted:
+         - echo "  `date +'%Y-%m-%d %H:%M:%S'` % {{task}} % ACCEPTED % {{series_name}} S{{series_season|pad(2)}}E{{series_episode}} {{quality}}" >> '{? path.a ?}'
+
+  lostfilm:
+    lostfilm: yes
+    deluge:
+      label: lostfilm
+    headers:
+      cookie: '{? lostfilm.cookie ?}'
+    include: lostfilm.yml
+    template: tvshows
+
+  baibako:
+    rss: '{? RRSUrls.baibako ?}'
+    deluge:
+      label: baibako
+    manipulate:
+      - title:
+          replace:
+            format: '720p'
+            regexp: 'HD720p'
+      - title:
+          replace:
+            format: '1080p'
+            regexp: 'HD1080p'
+      - title:
+          replace:
+            format: '/ '
+            regexp: '/'
+      - title:
+          replace:
+            regexp: '(.*) / (.*) / (.*) / (.*) / (.*)'
+            format: '\1 - \2 \3 (\4)'
+    include: baibako.yml
+    template: tvshows
+    accept_all: yes
+    if:
+      - "'Доктор Хто' in title": reject
+
+  tapochek_films:
+    deluge:
+      path: /mnt/sdb1/plex/Films/{{ movie_name }} ({{ movie_year }})
+      label: tapochek
+    trakt_lookup:
+      account: _rik_
+    imdb_lookup: yes
+#    if:
+#      - trakt_collected: reject
+    rss: '{? RRSUrls.tapochek ?}'
+    imdb:
+      min_score: 6.7
+      min_votes: 5000
+    quality: 720p-1080p 
+    upgrade:
+      tracking: yes
+      target: 1080p h265
+    manipulate:
+      - title:
+          replace:
+            regexp: '-HEVC'
+            format: ' H265'
+      - title:
+          replace:
+            regexp: '(Лицензия|60 fps|iTunes|IMAX Edition|IMAX| г\.|\.|мультфильм|комедия|фэнтези|биография|криминал|семейный|комедия|фэнтези|мело|ужасы|детектив|фантастика|драма|военный|спорт|приключения|боевик|музыка|триллер|история)'
+            format: ''
+      - title:
+          replace:
+            regexp: '\[\]'
+            format: ''
+      - title:
+          replace:
+            regexp: '  '
+            format: ' '
+      - title:
+          replace:
+            regexp: '(.*)/(.*) \((.*)\) \[(.*), (.*)\](.*)\[(.*)\]'
+            format: '\2 (\3) [\4, \5] [\7]'
+      - title:
+          replace:
+            regexp: '(.*) \((.*)\) \[(.*), (.*)\] \[(.*)\]'
+            format: '\1 (\3) - \4'
+      - title:
+          replace:
+            regexp: ', '
+            format: ''
+
+    list_match:
+      remove_on_match: no
+      from:
+        - trakt_list:
+            account: _rik_
+            list: watchlist
+            type: movies
+    exec:
+     allow_background: yes
+     auto_escape: yes
+     on_exit:
+       for_accepted:
+         - echo "  `date +'%Y-%m-%d %H:%M:%S'` % {{task}} % ACCEPTED % {{imdb_name}} ({{imdb_year}}) {{quality}}" >> '{? path.a ?}'
+
+tasks:
+  Lostfilm:
+    template: lostfilm
+  Baibako:
+    template: baibako
+  download-films:
+    template: tapochek_films
+  # sort-series:
+  #   metainfo_series: yes
+  #   trakt_lookup: yes
+  #   filesystem:
+  #     path: /mnt/sdb1/plex/unsorted/
+  #     regexp: '.*\.(avi|mkv|mp4)$'
+  #     recursive: yes
+  #   seen: local
+  #   require_field: series_name
+  #   accept_all: yes
+  #   move:
+  #     to: /mnt/sdb1/plex/TV Shows/{{ series_name }}/Season {{series_season|pad(2)}}
+
+web_server:
+  bind: 0.0.0.0
+  port: 5050
+  web_ui: yes
+  base_url: /
+  run_v2: yes

@@ -1,0 +1,50 @@
+series:
+  720p:
+    - Agents of S.H.I.E.L.D.:
+        alternate_name: Агенты Щ.И.Т.
+    - Blindspot:
+        alternate_name: Слепое пятно
+    - Z Nation:
+        alternate_name: Нация Z
+    - Future Man:
+        alternate_name: Человек будущего
+    - Arrow:
+        alternate_name: Стрела
+    - The Flash:
+        alternate_name: Флэш
+    - Supergirl:
+        alternate_name: Супергёрл
+    - Legends of Tomorrow:
+        alternate_name: Легенды завтрашнего дня
+    - Mr. Robot:
+        alternate_name: Мистер Робот
+    - Iron fist:
+        alternate_name: Железный кулак
+    - The Orville:
+        alternate_name: Орвилл
+    - Runaways:
+        alternate_name: Беглецы
+    - The Punisher:
+        alternate_name: Каратель
+    - The X-Files:
+        alternate_name: Секретные материалы
+    - The Blacklist:
+        alternate_name: Чёрный список
+    - 'Black mirror':
+        alternate_name: 'Чёрное заеркало'
+    - 'Counterpart':
+        alternate_name: 'Обратная сторона'
+    - 'Stargate Origins':
+        alternate_name: 'Звездные врата: Начало'
+    - 'Timeless':
+        alternate_name: 'Вне времени'
+    - 'Elementary':
+        alternate_name: 'Элементарно'
+    - 'The First':
+        alternate_name: 'Первые'
+    - 'Better Call Saul':
+        alternate_name: 'Лучше звоните Солу'
+    - 'Daredevil':
+        alternate_name: 'Сорвиголова'
+    - 'Titans':
+        alternate_name: 'Титаны'

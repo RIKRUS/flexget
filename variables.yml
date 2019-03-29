@@ -1,0 +1,17 @@
+lostfilm:
+  cookie: *****
+RRSUrls:
+  baibako: http://baibako.tv/rss2.php?feed=dl&passkey=******&cat=1,2,651,143,591
+  tapochek: http://tapochek.net/rss2.php?f=431,122,324&uk=*******
+telegram:
+  token: 678969740:AAHlMu6oWSIvT699yoyTtGGxqW0ZNzrb_oE
+plex:
+  username: *****
+  password: *****
+trakt:
+  username: *****
+  password: *****
+kinozal:
+  url: http://kinozal.tv/rss.xml 
+path:
+  a: /config/accepted.log
