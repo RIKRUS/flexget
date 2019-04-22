@@ -6,7 +6,10 @@ schedules:
   - tasks: Baibako
     interval:
       minutes: 10
-  - tasks: download-films
+  - tasks: Tapochek
+    interval:
+      minutes: 10
+  - tasks: Kinozal
     interval:
       minutes: 10
 
@@ -30,6 +33,33 @@ templates:
      on_exit:
        for_accepted:
          - echo "  `date +'%Y-%m-%d %H:%M:%S'` % {{task}} % ACCEPTED % {{series_name}} S{{series_season|pad(2)}}E{{series_episode}} {{quality}}" >> '{? path.a ?}'
+
+  films:
+    deluge:
+      path: /mnt/sdb1/plex/Films/{{ movie_name }} ({{ movie_year }})
+    trakt_lookup:
+      account: _rik_
+    imdb_lookup: yes
+    imdb:
+      min_score: 7
+      min_votes: 5000
+    quality: 720p-1080p 
+    upgrade:
+      tracking: yes
+      target: 1080p h265
+    list_match:
+      remove_on_match: no
+      from:
+        - trakt_list:
+            account: _rik_
+            list: watchlist
+            type: movies
+    exec:
+     allow_background: yes
+     auto_escape: yes
+     on_exit:
+       for_accepted:
+         - echo "  `date +'%Y-%m-%d %H:%M:%S'` % {{task}} % ACCEPTED % {{imdb_name}} ({{imdb_year}}) {{quality}}" >> '{? path.a ?}'
 
   lostfilm:
     lostfilm: yes
@@ -68,22 +98,10 @@ templates:
       - "'Доктор Хто' in title": reject
 
   tapochek_films:
+    template: films
     deluge:
-      path: /mnt/sdb1/plex/Films/{{ movie_name }} ({{ movie_year }})
       label: tapochek
-    trakt_lookup:
-      account: _rik_
-    imdb_lookup: yes
-#    if:
-#      - trakt_collected: reject
     rss: '{? RRSUrls.tapochek ?}'
-    imdb:
-      min_score: 6.7
-      min_votes: 5000
-    quality: 720p-1080p 
-    upgrade:
-      tracking: yes
-      target: 1080p h265
     manipulate:
       - title:
           replace:
@@ -91,50 +109,62 @@ templates:
             format: ' H265'
       - title:
           replace:
-            regexp: '(Лицензия|60 fps|iTunes|IMAX Edition|IMAX| г\.|\.|мультфильм|комедия|фэнтези|биография|криминал|семейный|комедия|фэнтези|мело|ужасы|детектив|фантастика|драма|военный|спорт|приключения|боевик|музыка|триллер|история)'
+            regexp: '(60 fps|iTunes|IMAX Edition|Open Matte|IMAX| г\.)'
             format: ''
       - title:
           replace:
-            regexp: '\[\]'
+            regexp: '\[\] '
             format: ''
-      - title:
-          replace:
-            regexp: '  '
-            format: ' '
       - title:
           replace:
             regexp: '(.*)/(.*) \((.*)\) \[(.*), (.*)\](.*)\[(.*)\]'
             format: '\2 (\3) [\4, \5] [\7]'
       - title:
           replace:
-            regexp: '(.*) \((.*)\) \[(.*), (.*)\] \[(.*)\]'
-            format: '\1 (\3) - \4'
+            regexp: '(.*) \((.*)\) \[(.[0-9]*)(.[А-Яа-я\,\ ]*)(.[a-zA-Z0-9\-\ ]*)\] \[(.*)\]'
+            format: '\1 (\3) - \5'
+
+  kinozal:
+    deluge:
+      label: kiozal
+    template: films
+    # rss: http://kinozal.tv/rss.xml
+    headers:
+      cookie: uid=20039663; pass=e5pi16jlzn; countrys=ru
+    html:
+      url: http://kinozal.tv/browse.php?s=hevc+1080p&g=0&c=1002&v=3&d=0&w=0&t=0&f=0
+      title_from: link
+    urlrewrite:
+      sitename:
+        regexp: 'http://kinozal.tv/details.php\?id=(?P<id>\d+).*'
+        format: 'http://dl.kinozal.tv/download.php?id=\g<id>'
+    manipulate:
+      - title:
+          extract: (.*)\[[*]*\]
       - title:
           replace:
-            regexp: ', '
-            format: ''
-
-    list_match:
-      remove_on_match: no
-      from:
-        - trakt_list:
-            account: _rik_
-            list: watchlist
-            type: movies
-    exec:
-     allow_background: yes
-     auto_escape: yes
-     on_exit:
-       for_accepted:
-         - echo "  `date +'%Y-%m-%d %H:%M:%S'` % {{task}} % ACCEPTED % {{imdb_name}} ({{imdb_year}}) {{quality}}" >> '{? path.a ?}'
+            regexp: 'HEVC'
+            format: 'H265'
+      - title:
+          replace:
+            regexp: '(.*) / (.*) / (.*[0-9\-]) / (.*) / (.*) / (.*) \((.*)\)'
+            # Репродукция / Replicas / 2018 / ДБ, СТ / HEVC / BDRip (1080p)
+            format: '\2 (\3) - \5 \6 \7'
+      - title:
+          replace:
+            regexp: '(.*) / (.*[0-9\-]) / (.*) / (.*) / (.*) \((.*)\)'
+            # Replicas / 2018 / ДБ, СТ / HEVC / BDRip (1080p)
+            format: '\1 (\2) - \4 \5 \6'
 
 tasks:
   Lostfilm:
     template: lostfilm
   Baibako:
     template: baibako
-  download-films:
+  Tapochek:
     template: tapochek_films
+  Kinozal:
+    template: kinozal
   # sort-series:
   #   metainfo_series: yes
   #   trakt_lookup: yes
