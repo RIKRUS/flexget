@@ -130,7 +130,7 @@ templates:
     template: films
     # rss: http://kinozal.tv/rss.xml
     headers:
-      cookie: uid=20039663; pass=e5pi16jlzn; countrys=ru
+      cookie: uid=***; pass=***; countrys=ru
     html:
       url: http://kinozal.tv/browse.php?s=hevc+1080p&g=0&c=1002&v=3&d=0&w=0&t=0&f=0
       title_from: link
